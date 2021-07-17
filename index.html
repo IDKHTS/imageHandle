@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onclick="onSelectHandle('compress')">图片压缩</button>
+    <button onclick="onSelectHandle('cut')">图片裁剪</button>
+    <button onclick="onSelectHandle('mosaic')">图片马赛克</button>
+    <fieldset id="container">
+        <legend id="title">图片压缩</legend>
+        <input type="file" id="upload" accept="image/*">
+        <br>
+        <button onclick="onCompress()">压缩</button>
+        <button onclick="onDownload()" id="dl" style="display: none;">下载压缩图片</button>
+        <br>
+        <div style="display: flex;">
+            <div style="width: 300px;height: 300px;border: black 1px solid" id="preview">
+
+            </div>
+            <div style="width: 300px;height: 300px;border: black 1px solid;" id="previewC">
+
+            </div>
+        </div>
+    </fieldset>
+
+    <script>
+        const uploadEl = document.querySelector('#upload')
+        const titleEl = document.querySelector('#title')
+        const containerEl = document.querySelector('#container')
+        const previewEl = document.querySelector('#preview')
+        const previewCEl = document.querySelector('#previewC')
+        let file
+        let img
+        function creatEL(tag, children) {
+            let el = document.createElement(tag);
+            if (children && Array.isArray(children)) {
+                children.forEach((v) => el.appendChild(v));
+            } else if (children && typeof children == "object") {
+                el.appendChild(children);
+            } else if (children) {
+                el.innerHTML = children;
+            }
+            return el;
+        }
+
+        function fileToImage(file) {
+            const img = new Image()
+            var URL = window.webkitURL || window.URL;
+            if (URL) {
+                var url = URL.createObjectURL(file);
+                img.onload = function () {
+                    // callback(image);
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+            }
+            return img
+        }
+
+        // 读取image到canvas
+        function image2Canvas(image) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+            // console.dir(image)
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            // console.log(canvas)
+            containerEl.appendChild(canvas)
+            return canvas;
+        }
+
+        uploadEl.onchange = function (e) {
+            file = uploadEl.files[0]
+            console.log('get file', file)
+            img = fileToImage(file)
+            previewEl.innerHTML = ''
+            previewEl.appendChild(img)
+            previewEl.appendChild(creatEL('br'))
+            previewEl.appendChild(creatEL('span', `大小：${file.size}`))
+        }
+
+
+
+        function onSelectHandle(type) {
+            let title
+            switch (type) {
+                case 'compress': title = '图片压缩'; break;
+                case 'cut': title = '图片裁剪'; break;
+                case 'mosaic': title = '图片马赛克'; break;
+
+            }
+            titleEl.innerHTML = title
+        }
+
+        function onCompress() {
+            const canvas = image2Canvas(img)
+            previewCEl.innerHTML = ''
+            previewCEl.appendChild(canvas)
+            canvas.toBlob(function (blob) {
+                console.log('compress', blob)
+                previewCEl.appendChild(creatEL('br'))
+                previewCEl.appendChild(creatEL('span', `大小：${blob.size}`))
+            }, file.type || 'image/jpeg', 0.8)
+        }
+
+    </script>
+</body>
+
+</html>
