@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            width: 600px;
+            height: 600px;
+            border: rgb(219, 219, 248) 1px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .workspace {
+            position: relative;
+        }
+
+        .pan-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 50%;
+        }
+
+        .pan1 {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan2 {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan3 {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan4 {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="file" id="upload" accept="image/*" onchange="uploadFile(event)">
+    <br>
+    <fieldset>
+        <legend>画笔</legend>
+        <div class="pan-box">
+            <div class='pan1' onclick="onSelectPan(1)"></div>
+            <div class='pan2' onclick="onSelectPan(2)"></div>
+            <div class='pan3' onclick="onSelectPan(3)"></div>
+            <div class='pan4' onclick="onSelectPan(4)"></div>
+        </div>
+    </fieldset>
+    <div class="container" id="container">
+        <!-- <div class="workspace" id="workspace"></div> -->
+    </div>
+
+    <!-- <canvas id="canvas" width="500" height="500"></canvas> -->
+
+    <script>
+
+        const uploadEl = document.querySelector('#upload')
+        const containerEl = document.querySelector('#container')
+
+        let file, img, canvas, ref
+        function uploadFile(e) {
+            file = uploadEl.files[0]
+            if (!file) return
+            // console.log(file)
+            let reader = new FileReader(file)
+            reader.readAsDataURL(file)
+            reader.onload = function (e) {
+                createImg(reader.result)
+            }
+        }
+
+        // 创建图片对象
+        function createImg(imageData) {
+            // console.log(imageData)
+            img = new Image()
+            img.src = imageData
+            img.onload = function (e) {
+                createCanvas(img)
+            }
+
+        }
+
+        // 创建画布并且画好图片
+        function createCanvas(imgEl) {
+            canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            // 图片大小适配
+            const proportion = imgEl.naturalWidth / imgEl.naturalHeight
+            const containerStyle = window.getComputedStyle(containerEl)
+            const maxWidth = containerStyle.width.slice(0, -2)
+            const maxHeight = containerStyle.height.slice(0, -2)
+            let width = imgEl.naturalWidth
+            let height = imgEl.naturalHeight
+            if (width > maxWidth) {
+                width = maxWidth
+                height = Math.floor(width / maxWidth * maxHeight)
+            } else if (height > maxHeight) {
+                width = Math.floor(height * maxWidth / maxHeight)
+                height = maxHeight
+            }
+
+            canvas.width = width
+            canvas.height = height
+
+            ctx.drawImage(imgEl, 0, 0, imgEl.naturalWidth, imgEl.naturalHeight)
+            containerEl.innerHTML = ''
+            containerEl.appendChild(canvas)
+            init()
+        }
+
+
+
+
+        const pan = {
+            x: 0,
+            y: 0,
+            radius: 10,
+            color: 'blue',
+            draw() {
+                const ctx = canvas.getContext('2d')
+                // ctx.beginPath();
+                // ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+                // ctx.closePath();
+                // ctx.fillStyle = this.color;
+                // ctx.fill();
+
+                const imgData = ctx.getImageData(this.x, this.y, this.radius, this.radius)
+                const w = imgData.width
+                const h = imgData.height
+                console.log(imgData)
+                const num = 5
+                const sw = Math.floor(w / num)
+                const sh = Math.floor(h / num)
+                console.log(sw,sh)
+                // 遍历选中图片区域，获取其中每一个小区域
+                for (let i = 0; i < sh; i++) {
+                    for (let j = 0; j < sw; j++) {
+                        let rw = Math.floor(Math.random() * num)
+                        let rh = Math.floor(Math.random() * num)
+                        const color = getXY(imgData, j * num + rw, i * num + rh)
+                        console.log(i,j,color)
+                        // 设置当前小区域为同一种颜色
+                        for (let ii = 0; ii < num; ii++) {
+                            for (let jj = 0; jj < num; jj++) {
+                                setXY(imgData, j * num + jj, i * num + ii, color)
+                            }
+                        }
+
+                    }
+                }
+
+                ctx.putImageData(imgData, this.x, this.y);
+            }
+        }
+
+        function onSelectPan(type) {
+            switch (type) {
+                case 1: pan.radius = 10; break;
+                case 2: pan.radius = 15; break;
+                case 3: pan.radius = 20; break;
+                case 4: pan.radius = 25; break;
+            }
+        }
+
+        function init() {
+            let isDraw = false
+            canvas.addEventListener('mousedown', function (e) {
+                isDraw = true
+            })
+            canvas.addEventListener('mousemove', function (e) {
+                if (isDraw) {
+                    console.log('mousemove')
+                    pan.x = e.offsetX
+                    pan.y = e.offsetY
+                    pan.draw()
+                }
+                // ref = window.requestAnimationFrame(pan.draw(e))
+            })
+            canvas.addEventListener('mouseup', function (e) {
+                isDraw = false
+            })
+        }
+
+        function getXY(obj, x, y) {
+            const w = obj.width;
+            // var h = obj.height;
+            // var d = obj.data;
+            let color = [];
+            color[0] = obj.data[4 * (y * w + x)];
+            color[1] = obj.data[4 * (y * w + x) + 1];
+            color[2] = obj.data[4 * (y * w + x) + 2];
+            color[3] = obj.data[4 * (y * w + x) + 3];
+            return color;
+        }
+
+        function setXY(obj, x, y, color) {
+            var w = obj.width;
+            // var h = obj.height;
+            // var d = obj.data;
+            obj.data[4 * (y * w + x)] = color[0];
+            obj.data[4 * (y * w + x) + 1] = color[1];
+            obj.data[4 * (y * w + x) + 2] = color[2];
+            obj.data[4 * (y * w + x) + 3] = color[3];
+        }
+    </script>
+</body>
+
+</html>
