@@ -75,13 +75,9 @@
         </div>
     </fieldset>
     <div class="container" id="container">
-        <!-- <div class="workspace" id="workspace"></div> -->
     </div>
-
-    <!-- <canvas id="canvas" width="500" height="500"></canvas> -->
-
     <script>
-
+        console.log(window.navigator.userAgent)
         const uploadEl = document.querySelector('#upload')
         const containerEl = document.querySelector('#container')
 
@@ -136,9 +132,6 @@
             containerEl.appendChild(canvas)
             init()
         }
-
-
-
 
         const pan = {
             x: 0,
@@ -231,6 +224,7 @@
             obj.data[4 * (y * w + x) + 2] = color[2];
             obj.data[4 * (y * w + x) + 3] = color[3];
         }
+    
     </script>
 </body>
 

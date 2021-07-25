@@ -49,23 +49,25 @@
 <body>
     <input type="file" id="upload" accept="image/*" onchange="uploadFile(event)">
     <br>
-    <button onclick="crop()">截取</button>
+    <button onclick="onCrop()">截取</button>
     <br>
     <div class="container" id="container">
         <div class="workspace" id="workspace"></div>
     </div>
 
+    <script src="../utils/index.js"></script>
+    <script src="crop.js"></script>
 
     <script>
         const uploadEl = document.querySelector('#upload')
         const workspaceEl = document.querySelector('#workspace')
         const containerEl = document.querySelector('#container')
         let cutFieldEl, moveFielEl
-        let img
+        let img, file
 
         // 上传文件时触发
         function uploadFile(e) {
-            const file = e.target.files[0]
+            file = e.target.files[0]
 
             let reader = new FileReader()
             reader.readAsDataURL(file)
@@ -229,49 +231,16 @@
             cutFieldEl.appendChild(moveFielEl)
         }
 
-        // 裁剪
-        function crop() {
-            // 数据源
-            const sourceCanvas = document.createElement('CANVAS')
-            const workspaceStyle = window.getComputedStyle(workspaceEl)
-            const scWidth = workspaceStyle.width.slice(0, -2) - 0
-            const scHeight = workspaceStyle.height.slice(0, -2) - 0
-            sourceCanvas.width = scWidth
-            sourceCanvas.height = scHeight
-            const sourceCtx = sourceCanvas.getContext('2d')
-
-            console.log(scWidth, scHeight)
-
-            sourceCtx.drawImage(img, 0, 0, scWidth, scHeight);
-
-            console.log(sourceCanvas)
-
-            // sourceCanvas.onloadeddata = function () {
-            // document.body.appendChild(sourceCanvas);
-            // 截图
-            const resultCanvas = document.createElement('canvas')
+        async function onCrop() {
             const cutFieldStyle = window.getComputedStyle(cutFieldEl)
             const rcWidht = cutFieldStyle.width.slice(0, -2) - 0
             const rcHeight = cutFieldStyle.height.slice(0, -2) - 0
-            resultCanvas.width = rcWidht
-            resultCanvas.height = rcHeight
-            const resultCtx = resultCanvas.getContext('2d')
-
-
-            resultCtx.fillStyle = '#fff';
-            resultCtx.fillRect(0, 0, rcWidht, rcHeight);
-            resultCtx.drawImage(
-                sourceCanvas,
-                cutFieldStyle.left.slice(0, -2) - 0,
-                cutFieldStyle.top.slice(0, -2) - 0,
-                rcWidht,
-                rcHeight,
-                0,
-                0,
-                rcWidht,
-                rcHeight,
-            );
-            const code = resultCanvas.toDataURL('image/jpeg', 1);
+            const code = await crop(file, {
+                top: cutFieldStyle.top.slice(0, -2) - 0,
+                left: cutFieldStyle.left.slice(0, -2) - 0,
+                width: cutFieldStyle.width.slice(0, -2) - 0,
+                height: cutFieldStyle.height.slice(0, -2) - 0
+            })
             const image = new Image();
             image.src = code;
             image.onload = function () {
@@ -279,16 +248,6 @@
             }
         }
 
-
-        function debounce(delay, fn) {
-            let timer
-            return function (...args) {
-                clearTimeout(timer)
-                timer = setTimeout(() => {
-                    fn.apply(this, args)
-                }, delay);
-            }
-        }
         function throttle(delay, fn) {
             let cando = true
             return function (...args) {

@@ -1,7 +1,7 @@
-async function compress(file, options = { type: 'image/jpeg', quality: 0.8 }) {
+async function compress(file, options = { type: 'image/png', quality: 0.8 }) {
     const type = options.type
     const quality = options.quality || 0.8
-
+    
     const fileData = await readFile(file)
     const imgEl = await createImgEl(fileData)
     const canvas = getCompressCanvas(imgEl)
