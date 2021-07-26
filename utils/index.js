@@ -36,3 +36,17 @@ function creatEL(tag, children) {
     }
     return el;
 }
+
+function throttle(delay, fn) {
+    let cando = true
+    return function (...args) {
+        if (cando) {
+            fn.apply(this, args)
+            cando = false
+            setTimeout(() => {
+                cando = true
+            }, delay);
+        }
+    }
+
+}

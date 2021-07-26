@@ -17,9 +17,9 @@
             position: relative;
         }
 
-        .workspace {
+        /* .workspace {
             position: relative;
-        }
+        } */
 
         .cropbox {
             position: absolute;
@@ -62,185 +62,31 @@
         const uploadEl = document.querySelector('#upload')
         const workspaceEl = document.querySelector('#workspace')
         const containerEl = document.querySelector('#container')
-        let cutFieldEl, moveFielEl
-        let img, file
+        let cropComponent = null
 
         // 上传文件时触发
         function uploadFile(e) {
             file = e.target.files[0]
 
-            let reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = function (e) {
-                // console.log(reader.result)
-                createImg(reader.result)
-            }
+            // 构建截图工作台
+            cropComponent = new CropComponent(file, {
+                el: workspaceEl,
+                containerEl: containerEl
+            })
+            cropComponent.build()
 
             // 重置
             workspaceEl.innerHTML = ''
         }
 
-        // 创建一个图片工作台（准备被裁剪）
-        function createImg(imageData) {
-            img = new Image()
-            img.src = imageData
-            img.onload = function () {
-                const naturalWidth = img.naturalWidth;
-                const naturalHeight = img.naturalHeight;
-                // console.log(naturalHeight, naturalWidth)
-                workspaceEl.style.width = `${naturalWidth}px`
-                workspaceEl.style.height = `${naturalHeight}px`
-                workspaceEl.style.background = `url(${imageData}) no-repeat`;
-                workspaceEl.style.backgroundSize = '100% 100%';
-                createCropBox(workspaceEl)
-                // createCropBox(workspaceEl.parentElement)
-            }
-        }
-
-        // 创建裁剪框（带伸缩点）
-        function createCropBox(targetEl) {
-            cutFieldEl = document.createElement('div')
-            cutFieldEl.classList.add('cropbox')
-            moveFielEl = document.createElement('div')
-            moveFielEl.classList.add('moveField')
-
-            // 裁剪框的移动
-            let mouseCtx = {
-                isMouseDown: false,
-                x: 0,
-                y: 0,
-            }
-            function move(e) {
-                const offsetX = e.pageX - mouseCtx.x
-                const offsetY = e.pageY - mouseCtx.y
-
-                // 校验不能移出图片工作区
-                const cutFieldStyle = window.getComputedStyle(cutFieldEl)
-                const workspaceStyle = window.getComputedStyle(workspaceEl)
-                let left = cutFieldStyle.left.slice(0, -2) - 0 + offsetX
-                let top = cutFieldStyle.top.slice(0, -2) - 0 + offsetY
-                const maxLeft = workspaceStyle.width.slice(0, -2) - cutFieldStyle.width.slice(0, -2)
-                const maxTop = workspaceStyle.height.slice(0, -2) - cutFieldStyle.height.slice(0, -2)
-                left = left < 0 ? 0 : left
-                left = left > maxLeft ? maxLeft : left
-                top = top < 0 ? 0 : top
-                top = top > maxTop ? maxTop : top
-
-                cutFieldEl.style.left = left + 'px'
-                cutFieldEl.style.top = top + 'px'
-                mouseCtx.x += offsetX
-                mouseCtx.y += offsetY
-            }
-            cutFieldEl.addEventListener('mousedown', function (e) {
-                console.log('mousedown')
-                mouseCtx = {
-                    isMouseDown: true,
-                    x: e.pageX,
-                    y: e.pageY
-                }
-            }, false)
-            cutFieldEl.addEventListener('mousemove', throttle(5, function (e) {
-                // 裁剪框的移动
-                if (mouseCtx.isMouseDown) {
-                    move(e)
-                }
-                // 裁剪框的缩放
-                if (moveMouseCtx.isMouseDown) {
-                    expand(e)
-                }
-            }), false)
-            cutFieldEl.addEventListener('mouseup', function (e) {
-                console.log('mouseup', e)
-                mouseCtx.isMouseDown = false
-            }, false)
-
-
-            // 裁剪框的缩放
-            let moveMouseCtx = {
-                isMouseDown: false,
-                x: 0,
-                y: 0,
-            }
-            function expand(e) {
-                const offsetX = e.pageX - moveMouseCtx.x
-                const offsetY = e.pageY - moveMouseCtx.y
-
-                // 裁剪区域扩大
-                const cutFieldStyle = window.getComputedStyle(cutFieldEl)
-                const workspaceStyle = window.getComputedStyle(workspaceEl)
-                let width = cutFieldStyle.width.slice(0, -2) - 0
-                let height = cutFieldStyle.height.slice(0, -2) - 0
-                width = width + offsetX
-                height = height + offsetY
-                const maxWidth = workspaceStyle.width.slice(0, -2) - cutFieldStyle.left.slice(0, -2)
-                const maxHeight = workspaceStyle.height.slice(0, -2) - cutFieldStyle.top.slice(0, -2)
-                width = width < 0 ? 0 : width
-                width = width > maxWidth ? maxWidth : width
-                height = height < 0 ? 0 : height
-                height = height > maxHeight ? maxHeight : height
-
-
-
-
-                cutFieldEl.style.width = width + 'px'
-                cutFieldEl.style.height = height + 'px'
-
-
-                moveMouseCtx.x += offsetX
-                moveMouseCtx.y += offsetY
-            }
-            moveFielEl.addEventListener('mousedown', function (e) {
-                e.stopPropagation()
-                console.log('move mousedown')
-                moveMouseCtx = {
-                    isMouseDown: true,
-                    x: e.pageX,
-                    y: e.pageY
-                }
-            })
-            moveFielEl.addEventListener('mousemove', throttle(5, function (e) {
-                e.stopPropagation()
-                if (moveMouseCtx.isMouseDown) {
-                    expand(e)
-                }
-            }))
-            moveFielEl.addEventListener('mouseup', function (e) {
-                e.stopPropagation()
-                console.log('move mouseup', e)
-                moveMouseCtx.isMouseDown = false
-            })
-
-            containerEl.addEventListener('mousemove', throttle(10, function (e) {
-                e.stopPropagation()
-                // 裁剪框的移动
-                if (mouseCtx.isMouseDown) {
-                    move(e)
-                }
-                if (moveMouseCtx.isMouseDown) {
-                    expand(e)
-                }
-            }))
-
-            containerEl.addEventListener('mouseup', function (e) {
-                e.stopPropagation()
-                moveMouseCtx.isMouseDown = false
-                mouseCtx.isMouseDown = false
-            })
-
-            targetEl.appendChild(cutFieldEl)
-            cutFieldEl.appendChild(moveFielEl)
-        }
-
         async function onCrop() {
-            const cutFieldStyle = window.getComputedStyle(cutFieldEl)
-            const rcWidht = cutFieldStyle.width.slice(0, -2) - 0
-            const rcHeight = cutFieldStyle.height.slice(0, -2) - 0
-            const code = await crop(file, {
-                top: cutFieldStyle.top.slice(0, -2) - 0,
-                left: cutFieldStyle.left.slice(0, -2) - 0,
-                width: cutFieldStyle.width.slice(0, -2) - 0,
-                height: cutFieldStyle.height.slice(0, -2) - 0
-            })
+            // 取得位置信息
+            const options = cropComponent.getPositionMsg()
+
+            // 截图
+            const code = await crop(file, options)
+
+            // 显示截图结果
             const image = new Image();
             image.src = code;
             image.onload = function () {
@@ -248,19 +94,6 @@
             }
         }
 
-        function throttle(delay, fn) {
-            let cando = true
-            return function (...args) {
-                if (cando) {
-                    fn.apply(this, args)
-                    cando = false
-                    setTimeout(() => {
-                        cando = true
-                    }, delay);
-                }
-            }
-
-        }
 
     </script>
 </body>
