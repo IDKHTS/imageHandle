@@ -19,18 +19,7 @@ async function crop(sourceFile, options) {
         ...defaultOptions,
         ...options,
     }
-
-    // 绘制原图
-    // 获取原图宽高
-    const scWidth = imgEl.naturalWidth
-    const scHeight = imgEl.naturalHeight
-    // 创建sourceCanvas，宽高和原图一样
-    const sourceCanvas = document.createElement('CANVAS')
-    sourceCanvas.width = scWidth
-    sourceCanvas.height = scHeight
-    const sourceCtx = sourceCanvas.getContext('2d')
-    sourceCtx.drawImage(imgEl, 0, 0, scWidth, scHeight)
-
+    
     // 截图
     // 创建resultCanvas
     const resultCanvas = document.createElement('canvas')
@@ -39,7 +28,7 @@ async function crop(sourceFile, options) {
     const resultCtx = resultCanvas.getContext('2d')
     // 把截取画面绘制经resultCanvas
     resultCtx.drawImage(
-        sourceCanvas,
+        imgEl,
         realOptions.left,
         realOptions.top,
         realOptions.width,
