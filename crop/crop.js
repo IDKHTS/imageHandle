@@ -19,7 +19,7 @@ async function crop(sourceFile, options) {
         ...defaultOptions,
         ...options,
     }
-    
+
     // 截图
     // 创建resultCanvas
     const resultCanvas = document.createElement('canvas')
@@ -55,7 +55,7 @@ class CropComponent {
             throw new Error('there must have a el as mounted point')
         }
         this.file = file
-        this.el = options.el
+        this.el = options.el // 用作“父元素”
         this.containerEl = options.containerEl
         this.cutFieldEl = null
         this.moveFielEl = null
