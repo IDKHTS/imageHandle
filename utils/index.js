@@ -4,7 +4,6 @@ function readFile(file) {
         let reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onload = function (data) {
-            console.log('FileReader', data)
             resolve(reader.result)
         }
         reader.onerror = (err) => reject(err)
@@ -17,7 +16,6 @@ function createImgEl(fileData) {
         const img = new Image()
         img.src = fileData
         img.onload = function (e) {
-            console.log(e)
             resolve(img)
         }
         img.onerror = (err) => reject(err)
@@ -49,4 +47,29 @@ function throttle(delay, fn) {
         }
     }
 
+}
+
+
+// ImageData获取x行y列颜色为color，obj为ImageData数据对象
+function getXY(obj, x, y) {
+    const w = obj.width;
+    // var h = obj.height;
+    // var d = obj.data;
+    let color = [];
+    color[0] = obj.data[4 * (y * w + x)];
+    color[1] = obj.data[4 * (y * w + x) + 1];
+    color[2] = obj.data[4 * (y * w + x) + 2];
+    color[3] = obj.data[4 * (y * w + x) + 3];
+    return color;
+}
+
+// ImageData设置x行y列颜色为color，obj为ImageData数据对象
+function setXY(obj, x, y, color) {
+    var w = obj.width;
+    // var h = obj.height;
+    // var d = obj.data;
+    obj.data[4 * (y * w + x)] = color[0];
+    obj.data[4 * (y * w + x) + 1] = color[1];
+    obj.data[4 * (y * w + x) + 2] = color[2];
+    obj.data[4 * (y * w + x) + 3] = color[3];
 }

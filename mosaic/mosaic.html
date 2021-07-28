@@ -76,155 +76,39 @@
     </fieldset>
     <div class="container" id="container">
     </div>
+
+    <script src="../utils/index.js"></script>
+    <script src="./mosaic.js"></script>
     <script>
-        console.log(window.navigator.userAgent)
         const uploadEl = document.querySelector('#upload')
         const containerEl = document.querySelector('#container')
-
-        let file, img, canvas, ref
+        
+        let masaicComponent = null
+        
         function uploadFile(e) {
-            file = uploadEl.files[0]
+            const file = uploadEl.files[0]
             if (!file) return
-            // console.log(file)
-            let reader = new FileReader(file)
-            reader.readAsDataURL(file)
-            reader.onload = function (e) {
-                createImg(reader.result)
-            }
+            masaic()
+        }
+        function masaic(){
+            masaicComponent = new MasaicComponent({
+                file,
+                el: containerEl,
+            })
         }
 
-        // 创建图片对象
-        function createImg(imageData) {
-            // console.log(imageData)
-            img = new Image()
-            img.src = imageData
-            img.onload = function (e) {
-                createCanvas(img)
-            }
-
-        }
-
-        // 创建画布并且画好图片
-        function createCanvas(imgEl) {
-            canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-
-            // 图片大小适配
-            const proportion = imgEl.naturalWidth / imgEl.naturalHeight
-            const containerStyle = window.getComputedStyle(containerEl)
-            const maxWidth = containerStyle.width.slice(0, -2)
-            const maxHeight = containerStyle.height.slice(0, -2)
-            let width = imgEl.naturalWidth
-            let height = imgEl.naturalHeight
-            if (width > maxWidth) {
-                width = maxWidth
-                height = Math.floor(width / maxWidth * maxHeight)
-            } else if (height > maxHeight) {
-                width = Math.floor(height * maxWidth / maxHeight)
-                height = maxHeight
-            }
-
-            canvas.width = width
-            canvas.height = height
-
-            ctx.drawImage(imgEl, 0, 0, imgEl.naturalWidth, imgEl.naturalHeight)
-            containerEl.innerHTML = ''
-            containerEl.appendChild(canvas)
-            init()
-        }
-
-        const pan = {
-            x: 0,
-            y: 0,
-            radius: 10,
-            color: 'blue',
-            draw() {
-                const ctx = canvas.getContext('2d')
-                // ctx.beginPath();
-                // ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-                // ctx.closePath();
-                // ctx.fillStyle = this.color;
-                // ctx.fill();
-
-                const imgData = ctx.getImageData(this.x, this.y, this.radius, this.radius)
-                const w = imgData.width
-                const h = imgData.height
-                console.log(imgData)
-                const num = 5
-                const sw = Math.floor(w / num)
-                const sh = Math.floor(h / num)
-                console.log(sw,sh)
-                // 遍历选中图片区域，获取其中每一个小区域
-                for (let i = 0; i < sh; i++) {
-                    for (let j = 0; j < sw; j++) {
-                        let rw = Math.floor(Math.random() * num)
-                        let rh = Math.floor(Math.random() * num)
-                        const color = getXY(imgData, j * num + rw, i * num + rh)
-                        console.log(i,j,color)
-                        // 设置当前小区域为同一种颜色
-                        for (let ii = 0; ii < num; ii++) {
-                            for (let jj = 0; jj < num; jj++) {
-                                setXY(imgData, j * num + jj, i * num + ii, color)
-                            }
-                        }
-
-                    }
-                }
-
-                ctx.putImageData(imgData, this.x, this.y);
-            }
-        }
 
         function onSelectPan(type) {
             switch (type) {
-                case 1: pan.radius = 10; break;
-                case 2: pan.radius = 15; break;
-                case 3: pan.radius = 20; break;
-                case 4: pan.radius = 25; break;
+                case 1: masaicComponent.setPan({ radius: 10 }); break;
+                case 2: masaicComponent.setPan({ radius: 15 }); break;
+                case 3: masaicComponent.setPan({ radius: 20 }); break;
+                case 4: masaicComponent.setPan({ radius: 25 }); break;
             }
         }
 
-        function init() {
-            let isDraw = false
-            canvas.addEventListener('mousedown', function (e) {
-                isDraw = true
-            })
-            canvas.addEventListener('mousemove', function (e) {
-                if (isDraw) {
-                    console.log('mousemove')
-                    pan.x = e.offsetX
-                    pan.y = e.offsetY
-                    pan.draw()
-                }
-                // ref = window.requestAnimationFrame(pan.draw(e))
-            })
-            canvas.addEventListener('mouseup', function (e) {
-                isDraw = false
-            })
-        }
 
-        function getXY(obj, x, y) {
-            const w = obj.width;
-            // var h = obj.height;
-            // var d = obj.data;
-            let color = [];
-            color[0] = obj.data[4 * (y * w + x)];
-            color[1] = obj.data[4 * (y * w + x) + 1];
-            color[2] = obj.data[4 * (y * w + x) + 2];
-            color[3] = obj.data[4 * (y * w + x) + 3];
-            return color;
-        }
 
-        function setXY(obj, x, y, color) {
-            var w = obj.width;
-            // var h = obj.height;
-            // var d = obj.data;
-            obj.data[4 * (y * w + x)] = color[0];
-            obj.data[4 * (y * w + x) + 1] = color[1];
-            obj.data[4 * (y * w + x) + 2] = color[2];
-            obj.data[4 * (y * w + x) + 3] = color[3];
-        }
-    
     </script>
 </body>
 
