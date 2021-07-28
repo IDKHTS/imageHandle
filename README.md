@@ -1,12 +1,10 @@
 # imageHandle
 
-题目 2 答案
-
 ## 打开
 
 直接用浏览器打开对应文件即可
 
--   `index.html`为图片压缩， [参考](https://segmentfault.com/a/1190000023486410)
+-   `compress.html`为图片压缩， [参考](https://segmentfault.com/a/1190000023486410)
 -   `crop.hml`为图片裁剪 demo，[参考](https://juejin.cn/post/6860024132730519560#heading-5)
 -   `masaic.html`为图片马赛克，[参考](https://www.cnblogs.com/liugang-vip/p/5442878.html)
 
@@ -20,6 +18,9 @@
 2.  把本地图片放到`canvas`中，只要利用`canvas`API 的`drawImage(imgEl,top,left,width,height)`,但是缺少对应图片的`Image标签`
 3.  input 取得的`File类的实例`要转为`Image标签`，主要可以利用`FileReader.readAsDataURL(file)`，传一个`File类实例`返回`base64数据`，然后把`base64数据`给到`Image.src`即可获取对应图片的`Image标签`
 4.  现在图片数据放到了 canvas，调用`toBlob(cb, type, quality)`即可
+
+[详细参考](https://idkhts.github.io/2021/07/23/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9/)
+
 
 ### 图片裁剪
 
@@ -36,6 +37,10 @@
     【1，2 点值得注意的是`transform：translate（）`，如果使用这个元素，它的位置具有了两个偏移值，最终获取的`left`和`top`就不是当前位置的最终`left`和`top`，因为忽视了`transform`带来的影响】
 3.  还有一些细节处理，比如裁剪区域不应该大于（超出）图片工作台，这会导致最终的`left`，`top`，`width`，`height`出错
 4.  导出图片
+
+
+[详细参考](https://idkhts.github.io/2021/07/23/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9/)
+
 
 ### 图片马赛克
 
@@ -68,6 +73,9 @@
         imgData.data[4 * (y * w + x) + 3] = color[3]
     }
     ```
+
+
+[详细参考](https://idkhts.github.io/2021/07/23/%E5%9B%BE%E7%89%87%E9%A9%AC%E8%B5%9B%E5%85%8B/)
 
 ## 随记
 
