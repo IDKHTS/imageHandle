@@ -88,9 +88,9 @@
         function uploadFile(e) {
             const file = uploadEl.files[0]
             if (!file) return
-            masaic()
+            masaic(file)
         }
-        function masaic(){
+        function masaic(file){
             masaicComponent = new MasaicComponent({
                 file,
                 el: containerEl,

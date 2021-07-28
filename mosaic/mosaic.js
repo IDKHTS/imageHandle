@@ -48,11 +48,11 @@ class MasaicComponent {
         }
         this.el.appendChild(this.panEl)
 
-        // 绑定 画笔马赛克操作（点击，移动，放起）
-        this.bindEvent()
-
         // 绘制画笔
         this.drawPan = this._drawPan.bind(this)
+
+        // 绑定 画笔马赛克操作（点击，移动，放起）
+        this.bindEvent()
     }
 
     // 创建画布并且画好图片
@@ -175,3 +175,4 @@ class MasaicComponent {
         this.raf = window.requestAnimationFrame(this.drawPan)
     }
 }
+
