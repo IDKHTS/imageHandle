@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>
+        选择多个图片，多个图片将会上下拼接起来
+    </p>
+    <input type="file" id="upload" onchange="onUpload(event)" accept="image/**" multiple>
+
+    <script src="../utils/index.js"></script>
+    <script src="stitch.js"></script>
+    <script>
+
+        async function onUpload(event) {
+            const files = event.target.files
+            console.log(files)
+
+            const canvas = await stitch(files)
+            console.log(canvas)
+            document.body.appendChild(canvas)
+
+            const code = canvas.toDataURL('image/jpeg', 1)
+            download(code)
+        }
+
+
+    </script>
+</body>
+
+</html>
