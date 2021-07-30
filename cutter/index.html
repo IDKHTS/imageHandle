@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>picture cutter</title>
+    <style>
+        .container {
+            width: 600px;
+            height: 500px;
+            border: rgb(219, 219, 248) 1px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .pan-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 50%;
+        }
+
+        .pan1 {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan2 {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan3 {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+
+        .pan4 {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: gray;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="file" id="upload" onchange="onUpload(event)" accept="image/**"><br>
+    <button onclick="onCutter(event)">完成</button>
+    <br>
+    <fieldset>
+        <legend>画笔</legend>
+        <div class="pan-box">
+            <div class='pan1' onclick="onSelectPan(1)"></div>
+            <div class='pan2' onclick="onSelectPan(2)"></div>
+            <div class='pan3' onclick="onSelectPan(3)"></div>
+            <div class='pan4' onclick="onSelectPan(4)"></div>
+        </div>
+    </fieldset>
+    <br>
+    <div style="display: flex;">
+        <div class="container" id="container"></div>
+        <div class="container" id="target-container"></div>
+    </div>
+
+
+    <script src="../utils/index.js"></script>
+    <script src="cutter.js"></script>
+    <script>
+        const uploadEl = document.querySelector('#upload')
+        // const workspaceEl = document.querySelector('#workspace')
+        const containerEl = document.querySelector('#container')
+        const targetContainerEl = document.querySelector('#target-container')
+        let cutterComponent = null
+        async function onUpload(e) {
+            const file = e.target.files[0]
+
+            cutter(file)
+        }
+
+
+        function cutter(file) {
+            cutterComponent = new CutterComponent({
+                file,
+                el: containerEl,
+                targetEl: targetContainerEl,
+            })
+        }
+
+        function onSelectPan(type) {
+            switch (type) {
+                case 1: cutterComponent.setPan({ radius: 10 }); break;
+                case 2: cutterComponent.setPan({ radius: 15 }); break;
+                case 3: cutterComponent.setPan({ radius: 20 }); break;
+                case 4: cutterComponent.setPan({ radius: 25 }); break;
+            }
+        }
+
+        function onCutter() {
+            const resultCanvas = cutterComponent.resultCanvas
+            const code = resultCanvas.toDataURL('image/png', 1)
+            download(code, '抠图')
+        }
+    </script>
+
+</body>
+
+</html>
